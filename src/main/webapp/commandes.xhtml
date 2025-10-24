@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui"> <h:head>
+    <title>Mes Commandes</title>
+</h:head>
+<h:body>
+    <div class="commandes-container">
+        <h1>Historique de Mes Commandes</h1>
+
+        <h:form id="commandesForm">
+            <p:messages id="globalMessages" showDetail="true" closable="true" globalOnly="true"/>
+
+            <h:panelGroup rendered="#{empty commandeBean.commandes}">
+                <p>Vous n'avez passé aucune commande pour le moment. 🛒</p>
+                <h:link value="Commencer mes achats" outcome="accueil"/>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{not empty commandeBean.commandes}">
+
+                <p:dataTable id="commandesTable"
+                             value="#{commandeBean.commandes}"
+                             var="cmd"
+                             styleClass="commandes-table"
+                             rows="10"
+                             paginator="true"
+                             sortMode="multiple"
+                             emptyMessage="Aucune commande trouvée.">
+
+                    <p:column headerText="N° de Commande" sortBy="#{cmd.numeroCommande}">
+                        <h:outputText value="#{cmd.numeroCommande}"/>
+                    </p:column>
+
+                    <p:column headerText="Date" sortBy="#{cmd.dateCommande}">
+                        <h:outputText value="#{cmd.dateCommande}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Statut" sortBy="#{cmd.statut}">
+                        <h:outputText value="#{cmd.statut}" styleClass="statut-#{cmd.statut.toLowerCase()}"/>
+                    </p:column>
+
+                    <p:column headerText="Montant Total" sortBy="#{cmd.montantTotal}">
+                        <h:outputText value="#{cmd.montantTotal}">
+                            <f:convertNumber type="currency" currencySymbol="€" locale="fr_FR"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Actions">
+
+                        <p:commandButton value="Annuler"
+                                         action="#{commandeBean.annulerCommande(cmd)}"
+                                         rendered="#{cmd.statut eq 'EN_ATTENTE'}"
+                                         update=":commandesForm:commandesTable globalMessages"
+                                         styleClass="ui-button-danger">
+
+                            <p:confirm header="Confirmation d'annulation"
+                                       message="Êtes-vous sûr de vouloir annuler la commande N°#{cmd.numeroCommande} ?"
+                                       icon="pi pi-exclamation-triangle"/>
+                        </p:commandButton>
+
+                        <h:outputText value="Impossible d'annuler"
+                                      rendered="#{cmd.statut ne 'EN_ATTENTE'}"
+                                      styleClass="text-muted"/>
+
+                    </p:column>
+                </p:dataTable>
+            </h:panelGroup>
+
+            <p:confirmDialog global="true">
+                <p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes"/>
+            </p:confirmDialog>
+
+        </h:form>
+    </div>
+</h:body>
+</html>

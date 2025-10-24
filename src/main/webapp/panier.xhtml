@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<h:head>
+    <title>Mon Panier</title>
+</h:head>
+<h:body>
+    <div class="panier-content">
+        <h1>Votre Panier</h1>
+
+        <h:form id="panierForm">
+
+            <h:panelGroup rendered="#{empty panierBean.lignesPanier}">
+                <p>Votre panier est vide. 😢</p>
+                <h:link value="Continuer mes achats" outcome="accueil"/>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{not empty panierBean.lignesPanier}">
+                <h:dataTable value="#{panierBean.lignesPanier}" var="ligne" styleClass="cart-table">
+
+                    <h:column>
+                        <f:facet name="header">Produit</f:facet>
+                        #{ligne.produit.nom}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Quantité</f:facet>
+                        #{ligne.quantite}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Prix Unitaire</f:facet>
+                        <h:outputText value="#{ligne.prixUnitaire}">
+                            <f:convertNumber type="currency" currencySymbol="€" locale="fr_FR"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Sous-Total</f:facet>
+                        <h:outputText value="#{ligne.sousTotal}">
+                            <f:convertNumber type="currency" currencySymbol="€" locale="fr_FR"/>
+                        </h:outputText>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Action</f:facet>
+                        <h:commandButton value="Supprimer"
+                                         action="#{panierBean.supprimerLigne(ligne)}"
+                                         styleClass="btn-delete">
+                            <f:ajax execute="@this" render=":panierForm"/>
+                        </h:commandButton>
+                    </h:column>
+                </h:dataTable>
+
+                <div class="cart-summary">
+                    <h:outputText id="total"
+                                  value="Total : #{panierBean.panier.montantTotal}"
+                                  styleClass="total-amount">
+                        <f:convertNumber type="currency" currencySymbol="€" locale="fr_FR"/>
+                    </h:outputText>
+                </div>
+
+                <h:commandButton value="Passer la Commande"
+                                 action="#{panierBean.passerCommande()}"
+                                 styleClass="btn-checkout"/>
+            </h:panelGroup>
+
+            <h:messages globalOnly="true" styleClass="messages"/>
+        </h:form>
+    </div>
+</h:body>
+</html>
